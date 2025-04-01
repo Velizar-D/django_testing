@@ -7,7 +7,7 @@ MAX_NEWS_ON_PAGE = 10
 
 @pytest.mark.django_db
 def test_news_count_on_home_page(client, home_url):
-    """Проверка ограничения количества новостей на главной странице (макс. 10)."""
+    """Проверка ограничения количества новостей на главной странице: 10."""
     response = client.get(home_url)
     assert len(response.context['news_list']) <= MAX_NEWS_ON_PAGE
 
