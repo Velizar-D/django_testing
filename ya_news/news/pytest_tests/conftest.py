@@ -1,78 +1,93 @@
-from datetime import datetime, timedelta
-
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+from news.models import News, Comment
 import pytest
-from django.conf import settings
-from django.utils import timezone
 
-from news.models import Comment, News
-
-
-@pytest.fixture
-def author(django_user_model):
-    return django_user_model.objects.create(username='Автор')
+User = get_user_model()
+NEWS_COUNT = 15
+COMMENTS_COUNT = 3
+SECOND_NEWS_COUNT = 3
 
 
 @pytest.fixture
-def author_client(author, client):
+def client_loggin(client, author):
+    """Возвращает аутентифицированного автора."""
     client.force_login(author)
     return client
 
 
 @pytest.fixture
+def form_data():
+    """Предоставляет тестовые данные для формы комментария."""
+    return {'text': 'Текст комментария'}
+
+
+@pytest.fixture
 def news():
-    news = News.objects.create(
-        title='News Title',
-        text='News Text',
-    )
-    return news
+    """Создает тестовый объект новости с заголовком и текстом."""
+    return News.objects.create(
+        title='Заголовок',
+        text='Текст'
+        )
 
 
 @pytest.fixture
-def pk_from_news(news):
-    return news.pk,
+def author():
+    """Создает и возвращает пользователя с именем 'author'."""
+    return User.objects.create(username='author')
 
 
 @pytest.fixture
-def comment(author, news):
-    comment = Comment.objects.create(
+def auth_user():
+    """Создает и возвращает аутентифицированного пользователя (не автора)."""
+    return User.objects.create(username='auth_user')
+
+
+@pytest.fixture
+def comment(news, author):
+    """Создает тестовый комментарий к новости от указанного автора."""
+    return Comment.objects.create(
         news=news,
         author=author,
-        text='Comment text'
-    )
-    return comment
-
-
-@pytest.fixture
-def pk_from_comment(comment):
-    return comment.pk,
-
-
-@pytest.fixture
-def form_data():
-    return {
-        'text': 'Новый текст комментария'
-    }
-
-
-@pytest.fixture
-def make_bulk_of_news():
-    News.objects.bulk_create(
-        News(title=f'News number {index}',
-             text='News text',
-             date=datetime.today() - timedelta(days=index)
-             )
-        for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
+        text='Текст комментария'
     )
 
 
 @pytest.fixture
-def make_bulk_of_comments(news, author):
-    now = timezone.now()
-    for index in range(11):
-        comment = Comment.objects.create(
-            news=news,
+def second_news():
+    """Создает список из 3 тестовых новостей для проверки отображения."""
+    return [
+        News.objects.create(title=f'Заголовок {i}', text=f'Текст {i}')
+        for i in range(SECOND_NEWS_COUNT)
+    ]
+
+
+@pytest.fixture
+def second_comments(second_news, author):
+    """Создает 3 тестовых комментария к первой новости из second_news."""
+    return [
+        Comment.objects.create(
+            news=second_news[0],
             author=author,
-            text=f'Comment text {index}'
+            text=f'Текст комментария {i}'
         )
-        comment.created = now + timedelta(days=index)
-        comment.save()
+        for i in range(COMMENTS_COUNT)
+    ]
+
+
+@pytest.fixture
+def home_url():
+    """Возвращает URL-адрес домашней страницы новостей."""
+    return reverse('news:home')
+
+
+@pytest.fixture
+def comments_url():
+    """Возвращает URL-адрес страницы с комментариями к новости."""
+    return reverse('news:detail', args=(news.id,))
+
+
+@pytest.fixture
+def news_detail_url(news):
+    """Возвращает URL-адрес страницы просмотра новости."""
+    return reverse('news:detail', args=(news.id,))
