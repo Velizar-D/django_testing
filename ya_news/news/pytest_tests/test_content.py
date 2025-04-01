@@ -7,7 +7,7 @@ MAX_NEWS_ON_PAGE = 10
 
 @pytest.mark.django_db
 def test_news_count_on_home_page(client, home_url):
-    """Проверка, что количество новостей на главной странице не превышает 10."""
+    """Проверка ограничения количества новостей на главной странице (макс. 10)."""
     response = client.get(home_url)
     assert len(response.context['news_list']) <= MAX_NEWS_ON_PAGE
 
@@ -16,7 +16,7 @@ def test_news_count_on_home_page(client, home_url):
 def test_news_order_on_home_page(client, home_url):
     """
     Проверка порядка новостей на главной странице.
-    
+
     Новости должны быть отсортированы от самой свежей к самой старой.
     Свежие новости должны находиться в начале списка.
     """
@@ -30,7 +30,7 @@ def test_news_order_on_home_page(client, home_url):
 def test_comments_order_on_news_page(client, second_news, second_comments):
     """
     Проверка порядка комментариев на странице новости.
-    
+
     Комментарии должны быть отсортированы от старых к новым.
     Старые комментарии должны находиться в начале списка.
     """
@@ -49,7 +49,7 @@ def test_comment_form_availability(client, auth_user,
                                    news, is_authenticated, form_is_available):
     """
     Проверка доступности формы комментариев для разных пользователей.
-    
+
     Анонимному пользователю форма должна быть недоступна.
     Авторизованному пользователю форма должна быть доступна.
     """
