@@ -7,9 +7,7 @@ MAX_NEWS_ON_PAGE = 10
 
 @pytest.mark.django_db
 def test_news_count_on_home_page(client, home_url):
-    """
-    Количество новостей на главной странице — не более 10(MAX_NEWS_ON_PAGE).
-    """
+    """Проверка, что количество новостей на главной странице не превышает 10."""
     response = client.get(home_url)
     assert len(response.context['news_list']) <= MAX_NEWS_ON_PAGE
 
@@ -17,8 +15,10 @@ def test_news_count_on_home_page(client, home_url):
 @pytest.mark.django_db
 def test_news_order_on_home_page(client, home_url):
     """
-    Новости отсортированы от самой свежей к самой старой.
-    Свежие новости в начале списка.
+    Проверка порядка новостей на главной странице.
+    
+    Новости должны быть отсортированы от самой свежей к самой старой.
+    Свежие новости должны находиться в начале списка.
     """
     response = client.get(home_url)
     news_list = response.context['news_list']
@@ -28,8 +28,12 @@ def test_news_order_on_home_page(client, home_url):
 
 @pytest.mark.django_db
 def test_comments_order_on_news_page(client, second_news, second_comments):
-    """Комментарии на странице отдельной новости отсортированы:
-    старые в начале списка, новые — в конце."""
+    """
+    Проверка порядка комментариев на странице новости.
+    
+    Комментарии должны быть отсортированы от старых к новым.
+    Старые комментарии должны находиться в начале списка.
+    """
     url = reverse('news:detail', args=(second_news[0].id,))
     response = client.get(url)
     comments_list = response.context['news'].comment_set.all()
@@ -43,9 +47,12 @@ def test_comments_order_on_news_page(client, second_news, second_comments):
 ])
 def test_comment_form_availability(client, auth_user,
                                    news, is_authenticated, form_is_available):
-    """Анонимному пользователю недоступна форма для
-    отправки комментария на странице отдельной новости,
-    а авторизованному доступна."""
+    """
+    Проверка доступности формы комментариев для разных пользователей.
+    
+    Анонимному пользователю форма должна быть недоступна.
+    Авторизованному пользователю форма должна быть доступна.
+    """
     url = reverse('news:detail', args=(news.id,))
     if is_authenticated:
         client.force_login(auth_user)
