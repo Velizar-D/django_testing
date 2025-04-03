@@ -6,21 +6,15 @@ from http import HTTPStatus
 
 
 @pytest.mark.django_db
-def test_anonymous_user_cant_create_comment(client,
-                                            news_detail_url, form_data):
-    """
-    Тест проверяет, что анонимный пользователь не может отправить комментарий.
-    """
+def test_anonymous_user_cant_create_comment(client, news_detail_url, form_data):
+    """Тест проверяет, что анонимный пользователь не может отправить комментарий."""
     client.post(news_detail_url, data=form_data)
     assert Comment.objects.count() == 0
 
 
 @pytest.mark.django_db
-def test_user_can_create_comment(client_loggin,
-                                 news_detail_url, news, author, form_data):
-    """
-    Авторизованный пользователь может отправить комментарий.
-    """
+def test_user_can_create_comment(client_loggin, news_detail_url, news, author, form_data):
+    """Авторизованный пользователь может отправить комментарий."""
     response = client_loggin.post(news_detail_url, data=form_data)
     assert response.status_code == 302
     assert response.url == f'{news_detail_url}#comments'
@@ -34,7 +28,8 @@ def test_user_can_create_comment(client_loggin,
 @pytest.mark.django_db
 def test_user_cant_use_bad_words(client_loggin, news_detail_url):
     """Если комментарий содержит запрещённые слова,
-    он не будет опубликован, а форма вернёт ошибку."""
+    он не будет опубликован, а форма вернёт ошибку.
+    """
     form_data = {'text': f'Какой-то текст, {BAD_WORDS[0]}, еще текст'}
     response = client_loggin.post(news_detail_url, data=form_data)
     assert response.status_code == 200
@@ -49,7 +44,8 @@ def test_user_cant_use_bad_words(client_loggin, news_detail_url):
 def test_user_can_edit_or_delete_own_comment(client_loggin, news,
                                              comment, url_name, method):
     """Авторизованный пользователь может редактировать
-    и удалять свои комментарии."""
+    и удалять свои комментарии.
+    """
     url = reverse(url_name, args=(comment.id,))
     form_data = {'text': 'Обновленный текст комментария'}
     response = getattr(client_loggin, method)(url, data=form_data)
@@ -68,7 +64,8 @@ def test_user_can_edit_or_delete_own_comment(client_loggin, news,
 def test_user_cant_edit_or_delete_comment_of_another_user(client, comment,
                                                           auth_user, url_name):
     """Авторизованный пользователь не может редактировать
-    или удалять чужой комментарий."""
+    или удалять чужой комментарий.
+    """
     client.force_login(auth_user)
     url = reverse(url_name, args=(comment.id,))
     form_data = {'text': 'Обновленный текст комментария'}
