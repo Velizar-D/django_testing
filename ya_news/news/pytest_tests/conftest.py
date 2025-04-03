@@ -28,7 +28,7 @@ def news():
     return News.objects.create(
         title='Заголовок',
         text='Текст'
-        )
+    )
 
 
 @pytest.fixture
@@ -82,7 +82,7 @@ def home_url():
 
 
 @pytest.fixture
-def comments_url():
+def comments_url(news):
     """Возвращает URL-адрес страницы с комментариями к новости."""
     return reverse('news:detail', args=(news.id,))
 
