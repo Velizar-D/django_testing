@@ -7,13 +7,14 @@ from http import HTTPStatus
 
 @pytest.mark.django_db
 def test_anonymous_user_cant_create_comment(client, news_detail_url, form_data):
-    """Тест проверяет, что анонимный пользователь не может отправить комментарий."""
+    """Анонимный пользователь не может отправить комментарий."""
     client.post(news_detail_url, data=form_data)
     assert Comment.objects.count() == 0
 
 
 @pytest.mark.django_db
-def test_user_can_create_comment(client_loggin, news_detail_url, news, author, form_data):
+def test_user_can_create_comment(client_loggin, news_detail_url,
+                                  news, author, form_data):
     """Авторизованный пользователь может отправить комментарий."""
     response = client_loggin.post(news_detail_url, data=form_data)
     assert response.status_code == 302
@@ -41,8 +42,11 @@ def test_user_cant_use_bad_words(client_loggin, news_detail_url):
 @pytest.mark.django_db
 @pytest.mark.parametrize('url_name,method',
                          [('news:edit', 'post'), ('news:delete', 'delete')])
-def test_user_can_edit_or_delete_own_comment(client_loggin, news,
-                                             comment, url_name, method):
+def test_user_can_edit_or_delete_own_comment(client_loggin,
+                                               news,
+                                               comment,
+                                               url_name,
+                                               method):
     """Авторизованный пользователь может редактировать
     и удалять свои комментарии.
     """
@@ -61,8 +65,10 @@ def test_user_can_edit_or_delete_own_comment(client_loggin, news,
 
 @pytest.mark.django_db
 @pytest.mark.parametrize('url_name', ['news:edit', 'news:delete'])
-def test_user_cant_edit_or_delete_comment_of_another_user(client, comment,
-                                                          auth_user, url_name):
+def test_user_cant_edit_or_delete_comment_of_another_user(client,
+                                                           comment,
+                                                           auth_user,
+                                                           url_name):
     """Авторизованный пользователь не может редактировать
     или удалять чужой комментарий.
     """
