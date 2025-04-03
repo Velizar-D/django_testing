@@ -33,6 +33,7 @@ def test_user_cant_use_bad_words(client_loggin, news_detail_url):
     """
     form_data = {'text': f'Какой-то текст, {BAD_WORDS[0]}, еще текст'}
     response = client_loggin.post(news_detail_url, data=form_data)
+    
     assert response.status_code == 200
     form = response.context['form']
     assert form.errors['text'] == [WARNING]
@@ -50,15 +51,21 @@ def test_user_can_edit_or_delete_own_comment(client_loggin,
     """Авторизованный пользователь может редактировать
     и удалять свои комментарии.
     """
+    
     url = reverse(url_name, args=(comment.id,))
     form_data = {'text': 'Обновленный текст комментария'}
+    
     response = getattr(client_loggin, method)(url, data=form_data)
+    
     assert response.status_code == 302
-    assert response.url == reverse('news:detail',
-                                   args=(news.id,)) + '#comments'
+    assert response.url == (
+        reverse('news:detail', args=(news.id,)) + '#comments'
+    )
+    
     if method == 'post':
         comment.refresh_from_db()
         assert comment.text == form_data['text']
+    
     else:
         assert Comment.objects.count() == 0
 
