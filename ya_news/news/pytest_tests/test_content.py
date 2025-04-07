@@ -1,60 +1,52 @@
+from django.conf import settings
 from django.urls import reverse
+
 import pytest
-from news.models import News
-
-MAX_NEWS_ON_PAGE = 10
 
 
 @pytest.mark.django_db
-def test_news_count_on_home_page(client, home_url):
-    """Проверка ограничения количества новостей на главной странице: 10."""
-    response = client.get(home_url)
-    assert len(response.context['news_list']) <= MAX_NEWS_ON_PAGE
-
-
-@pytest.mark.django_db
-def test_news_order_on_home_page(client, home_url):
-    """
-    Проверка порядка новостей на главной странице.
-
-    Новости должны быть отсортированы от самой свежей к самой старой.
-    Свежие новости должны находиться в начале списка.
-    """
-    response = client.get(home_url)
-    news_list = response.context['news_list']
-    expected_news_list = list(News.objects.all().order_by('-date'))
-    assert list(news_list) == expected_news_list
-
-
-@pytest.mark.django_db
-def test_comments_order_on_news_page(client, second_news, second_comments):
-    """
-    Проверка порядка комментариев на странице новости.
-
-    Комментарии должны быть отсортированы от старых к новым.
-    Старые комментарии должны находиться в начале списка.
-    """
-    url = reverse('news:detail', args=(second_news[0].id,))
+def test_news_count(client, list_news):
+    """Количество новостей на главной странице — не более 10."""
+    url = reverse('news:home')
     response = client.get(url)
-    comments_list = response.context['news'].comment_set.all()
-    assert list(comments_list) == second_comments
+    object_list = response.context['object_list']
+    news_count = len(object_list)
+    assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize('is_authenticated,form_is_available', [
-    (False, False),
-    (True, True),
-])
-def test_comment_form_availability(client, auth_user,
-                                   news, is_authenticated, form_is_available):
-    """
-    Проверка доступности формы комментариев для разных пользователей.
+def test_news_order(client, list_news):
+    """Новости отсортированы от самой свежей к самой старой.
+    Свежие новости в начале списка."""
+    url = reverse('news:home')
+    response = client.get(url)
+    object_list = response.context['object_list']
+    all_news = list(object_list)
+    all_news.sort(key=lambda x: x.date, reverse=True)
+    assert all_news == list_news
 
-    Анонимному пользователю форма должна быть недоступна.
-    Авторизованному пользователю форма должна быть доступна.
-    """
+
+@pytest.mark.django_db
+def test_comments_order(client, news, list_comments):
+    """Комментарии на странице отдельной новости отсортированы в
+    хронологическом порядке."""
     url = reverse('news:detail', args=(news.id,))
-    if is_authenticated:
-        client.force_login(auth_user)
     response = client.get(url)
-    assert ('form' in response.context) == form_is_available
+    assert 'news' in response.context
+    news = response.context['news']
+    if news:
+        all_comments = news.comment_set.all()
+    else:
+        all_comments = []
+    assert all_comments[0].created < all_comments[1].created
+
+
+@pytest.mark.django_db
+def test_comment_form_access(author_client, not_author_client, client, news):
+    """Анонимному пользователю недоступна форма для отправки
+    комментария на странице отдельной новости, а авторизованному доступна."""
+    url = reverse('news:detail', args=(news.id,))
+    response_anonymous = client.get(url)
+    assert 'form' not in response_anonymous.context
+    response_author = author_client.get(url)
+    assert 'form' in response_author.context
