@@ -69,3 +69,11 @@ def list_comments(author, news):
         ) for i in range(5)
     ]
     return news, comments
+
+
+@pytest.fixture
+def new_comment(news):
+    return {
+        'text': 'Новый комментарий',
+        'news': news.id,
+    }
