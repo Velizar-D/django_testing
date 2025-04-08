@@ -1,27 +1,8 @@
-from django.test import TestCase, Client
 from django.urls import reverse
-from django.contrib.auth import get_user_model
-
-from notes.models import Note
-
-User = get_user_model()
+from .base_tests import BaseTestCase
 
 
-class TestContent(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.author = User.objects.create(username='author')
-        cls.author_client = Client()
-        cls.author_client.force_login(cls.author)
-        cls.auth_user = User.objects.create(username='auth_user')
-        cls.auth_user_client = Client()
-        cls.auth_user_client.force_login(cls.auth_user)
-        cls.note = Note.objects.create(
-            title='Заголовок',
-            text='Текст',
-            author=cls.author,
-        )
-
+class TestContent(BaseTestCase):
     def test_note_in_list_for_author(self):
         """
         Заметка автора присутствует в его списке заметок.
@@ -41,11 +22,11 @@ class TestContent(TestCase):
     def test_pages_contain_forms(self):
         """Страницы создания и редактирования содержат формы."""
         urls = (
-            ('notes:add', None),
-            ('notes:edit', (self.note.slug,)),
+            (self.URL_ADD, None),
+            (self.URL_EDIT, None),
         )
-        for name, args in urls:
-            with self.subTest(name=name):
-                url = reverse(name, args=args)
+        for url_name, args in urls:
+            with self.subTest(name=url_name):
+                url = url_name if args is None else url_name
                 response = self.author_client.get(url)
                 self.assertIn('form', response.context)
