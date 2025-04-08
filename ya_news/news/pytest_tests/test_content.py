@@ -6,8 +6,7 @@ import pytest
 
 @pytest.mark.django_db
 def test_news_count(client, list_news):
-    """Количество новостей на главной странице — не более 10.
-    """
+    """Количество новостей на главной странице не более 10."""
     url = reverse('news:home')
     response = client.get(url)
     object_list = response.context['object_list']
