@@ -40,7 +40,6 @@ def test_comments_order(client, news, list_comments):
         all_comments = news.comment_set.all()
     else:
         all_comments = []
-    
     if len(all_comments) > 1:
         assert all_comments[0].created < all_comments[1].created
 
@@ -51,9 +50,7 @@ def test_comment_form_access(author_client, not_author_client, client, news):
     комментария на странице отдельной новости, а авторизованному доступна.
     """
     url = reverse('news:detail', args=(news.id,))
-    
     response_anonymous = client.get(url)
     assert 'form' not in response_anonymous.context
-    
     response_author = author_client.get(url)
     assert 'form' in response_author.context
