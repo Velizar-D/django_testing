@@ -8,8 +8,6 @@ from notes.models import Note
 from .base_tests import BaseTestCase
 from notes.forms import WARNING
 
-User = get_user_model()
-
 
 class TestNoteLogic(BaseTestCase):
     def setUp(self):
