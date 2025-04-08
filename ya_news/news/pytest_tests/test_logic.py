@@ -10,7 +10,6 @@ from news.forms import BAD_WORDS, WARNING
 from news.models import Comment
 
 
-
 @pytest.mark.django_db
 def test_anonymous_user_cant_create_comment(client, new_comment, news):
     """Анонимный пользователь не может отправить комментарий."""
@@ -32,7 +31,8 @@ def test_user_can_create_comment(author_client, author, new_comment, news):
 
 def test_user_cant_use_bad_words(author_client, news):
     """Если комментарий содержит запрещённые слова, он не будет
-    опубликован, а форма вернёт ошибку."""
+    опубликован, а форма вернёт ошибку.
+    """
     bad_words = {'text': f'Текст {BAD_WORDS[0]} текст'}
     url = reverse('news:detail', args=(news.id,))
     response = author_client.post(url, data=bad_words)
@@ -48,7 +48,8 @@ def test_user_cant_use_bad_words(author_client, news):
 
 def test_author_can_edit_comment(author_client, new_comment, news, comment):
     """Авторизованный пользователь может редактировать
-    или удалять свои комментарии."""
+    или удалять свои комментарии.
+    """
     news_url = reverse('news:detail', args=(news.id,))
     comment_url = reverse('news:edit', args=(comment.id,))
     response = author_client.post(comment_url, data=new_comment)
@@ -64,7 +65,8 @@ def test_author_can_edit_comment(author_client, new_comment, news, comment):
 def test_user_cant_edit_comment_of_another_user(admin_client, new_comment,
                                                 comment):
     """Авторизованный пользователь не может редактировать
-    или удалять чужие комментарии."""
+    или удалять чужие комментарии.
+    """
     comment_url = reverse('news:edit', args=(comment.id,))
     response = admin_client.post(comment_url, data=new_comment)
     assert response.status_code == HTTPStatus.NOT_FOUND
