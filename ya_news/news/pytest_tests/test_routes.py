@@ -23,8 +23,7 @@ def test_pages_availability(client, name):
 
 @pytest.mark.django_db
 def test_detail_page(client, news):
-    """Страница отдельной новости доступна анонимному пользователю.
-    """
+    """Страница новости доступна анонимному пользователю."""
     url = reverse('news:detail', args=(news.id,))
     response = client.get(url)
     assert response.status_code == HTTPStatus.OK
@@ -66,7 +65,5 @@ def test_redirect_for_anonymous_client(client, name, comment):
     login_url = reverse('users:login')
     url = reverse(name, args=(comment.id,))
     expected_url = f'{login_url}?next={url}'
-    
     response = client.get(url)
-    
     assertRedirects(response, expected_url)
