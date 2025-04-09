@@ -82,7 +82,7 @@ def comment(author, news):
         news=news,
         author=author,
         text='Текст комментария',
-        )
+    )
 
 
 @pytest.fixture
