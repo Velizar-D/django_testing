@@ -1,4 +1,3 @@
-from django.urls import reverse
 from .base_tests import BaseTestCase
 
 
@@ -14,8 +13,7 @@ class TestContent(BaseTestCase):
         )
         for user, note_in_list in users_statuses:
             with self.subTest():
-                url = reverse('notes:list')
-                response = user.get(url)
+                response = user.get(self.URL_LIST)
                 object_list = response.context['object_list']
                 self.assertIs((self.note in object_list), note_in_list)
 
