@@ -119,5 +119,4 @@ class TestNoteLogic(BaseTestCase):
         response = self.auth_user_client.post(self.URL_DELETE)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         self.assertEqual(Note.objects.count(), initial_count)
-        self.assertTrue(
-        Note.objects.filter(id=note_id).exists())
+        self.assertTrue(Note.objects.filter(id=note_id).exists())
