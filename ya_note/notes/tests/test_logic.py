@@ -93,7 +93,7 @@ class TestNoteLogic(BaseTestCase):
         response = self.auth_user_client.post(
             self.URL_EDIT,
             data=self.update_data
-            )
+        )
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
         updated_note = Note.objects.get(id=self.note.id)
         self.assertEqual(updated_note.title, self.note.title)
