@@ -13,30 +13,29 @@ DETAIL_URL = lazy_fixture('detail_url')
 EDIT_COMMENT_URL = lazy_fixture('edit_comment_url')
 DELETE_COMMENT_URL = lazy_fixture('delete_comment_url')
 
+CLIENT_FIXTURE = lazy_fixture('client')
+AUTHOR_CLIENT_FIXTURE = lazy_fixture('author_client')
+NOT_AUTHOR_FIXTURE = lazy_fixture('not_author_client')
+
 
 @pytest.mark.parametrize(
     'url, client_fixture, expected_status',
     [
-        (HOME_URL, lazy_fixture('client'), HTTPStatus.OK),
-        (LOGIN_URL, lazy_fixture('client'), HTTPStatus.OK),
-        (LOGOUT_URL, lazy_fixture('client'), HTTPStatus.OK),
-        (SIGNUP_URL, lazy_fixture('client'), HTTPStatus.OK),
-        (DETAIL_URL, lazy_fixture('client'), HTTPStatus.OK),
-        (EDIT_COMMENT_URL, lazy_fixture('author_client'), HTTPStatus.OK),
-        (DELETE_COMMENT_URL, lazy_fixture('author_client'), HTTPStatus.OK),
-        (EDIT_COMMENT_URL, lazy_fixture('admin_client'),
-         HTTPStatus.NOT_FOUND),
-        (DELETE_COMMENT_URL, lazy_fixture('admin_client'),
-         HTTPStatus.NOT_FOUND),
+        (HOME_URL, CLIENT_FIXTURE, HTTPStatus.OK),
+        (LOGIN_URL, CLIENT_FIXTURE, HTTPStatus.OK),
+        (LOGOUT_URL, CLIENT_FIXTURE, HTTPStatus.OK),
+        (SIGNUP_URL, CLIENT_FIXTURE, HTTPStatus.OK),
+        (DETAIL_URL, CLIENT_FIXTURE, HTTPStatus.OK),
+        (EDIT_COMMENT_URL, AUTHOR_CLIENT_FIXTURE, HTTPStatus.OK),
+        (DELETE_COMMENT_URL, AUTHOR_CLIENT_FIXTURE, HTTPStatus.OK),
+        (EDIT_COMMENT_URL, NOT_AUTHOR_FIXTURE, HTTPStatus.NOT_FOUND),
+        (DELETE_COMMENT_URL, NOT_AUTHOR_FIXTURE, HTTPStatus.NOT_FOUND),
     ],
 )
 def test_url_accessibility(url, client_fixture, expected_status, login_url):
     """Проверка доступности страниц."""
     response = client_fixture.get(url)
     assert response.status_code == expected_status
-    if expected_status == HTTPStatus.FOUND:
-        expected_redirect = f'{login_url}?next={url}'
-        assert response.headers['Location'] == expected_redirect
 
 
 @pytest.mark.parametrize(
