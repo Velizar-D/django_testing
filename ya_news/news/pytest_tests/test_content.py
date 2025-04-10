@@ -20,7 +20,7 @@ def test_news_order(client, list_news, home_url):
     object_list = response.context['object_list']
     all_news = News.objects.order_by('-date')[
         :settings.NEWS_COUNT_ON_HOME_PAGE
-        ]
+    ]
     assert list(object_list) == list(all_news)
 
 
