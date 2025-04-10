@@ -1,5 +1,7 @@
 from .base_tests import BaseTestCase
 
+from notes.forms import NoteForm
+
 
 class TestContent(BaseTestCase):
     def test_note_in_list_for_author(self):
@@ -28,3 +30,4 @@ class TestContent(BaseTestCase):
                 url = url_name if args is None else url_name
                 response = self.author_client.get(url)
                 self.assertIn('form', response.context)
+                self.assertIsInstance(response.context['form'], NoteForm)
