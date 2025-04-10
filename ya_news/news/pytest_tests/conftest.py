@@ -1,8 +1,10 @@
 import pytest
+from datetime import timedelta
 
 from django.conf import settings
 from django.test.client import Client
 from django.urls import reverse
+from django.utils import timezone
 
 from news.models import Comment, News
 
@@ -87,11 +89,15 @@ def comment(author, news):
 
 @pytest.fixture
 def list_news():
-    for i in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1):
-        News.objects.create(
+    news_count = settings.NEWS_COUNT_ON_HOME_PAGE + 1
+    news_list = [
+        News(
             title=f'Заголовок {i}',
-            text=f'Текст новости {i}'
-        )
+            text=f'Текст новости {i}',
+            date=timezone.now() - timedelta(days=i)
+        ) for i in range(news_count)
+    ]
+    News.objects.bulk_create(news_list)
 
 
 @pytest.fixture
