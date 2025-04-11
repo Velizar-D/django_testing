@@ -31,10 +31,8 @@ def test_comments_order(client, news, list_comments, detail_url):
     response = client.get(detail_url)
     assert 'news' in response.context
     news = response.context['news']
-    all_comments = news.comment_set.all()
-    if all_comments.count() > 1:
-        for i in range(1, all_comments.count()):
-            assert all_comments[i - 1].created < all_comments[i].created
+    all_comments = list(news.comment_set.all().order_by('created'))
+    assert list(news.comment_set.all()) == all_comments
 
 
 def test_comment_form_access_for_anonymous_user(client, news, detail_url):
